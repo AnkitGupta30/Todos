@@ -8,11 +8,12 @@ const App = () => {
   const [todo, setTodo] = useState("");
   const [todos, setTodos] = useState([]);
   const [showFinished, setShowFinished] = useState(true);
+  const [date, setDate] = useState("");
 
-  const toggleFinished = () =>{
-    setShowFinished(!showFinished)
-  }
- 
+  const toggleFinished = () => {
+    setShowFinished(!showFinished);
+  };
+
   useEffect(() => {
     const todoString = localStorage.getItem("todos");
     if (todoString) {
@@ -20,11 +21,10 @@ const App = () => {
       setTodos(savedTodos);
     }
   }, []);
-  
 
-  const setLocalStorage = () =>{
-    localStorage.setItem("todos", JSON.stringify(todos))
-  }
+  const setLocalStorage = () => {
+    localStorage.setItem("todos", JSON.stringify(todos));
+  };
 
   const handleEdit = (e, id) => {
     let t = todos.filter((item) => item.id === id);
@@ -65,11 +65,27 @@ const App = () => {
     setLocalStorage();
   };
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const now = new Date();
+      const formatedDate = now.toLocaleDateString();
+      const formatedTime = now.toLocaleTimeString();
+      setDate(`${formatedDate} - ${formatedTime}`);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <div>
       <NavBar />
       <div className="mt-14 md:container md:mx-auto mx-3 my-5 rounded-xl p-5 bg-violet-100 min-h-[80vh] md:w-1/2 ">
-        <h1 className="font-bold text-center text-xl">Manage your list at one place</h1>
+        <h1 className="font-bold text-center text-xl">
+          Manage your list at one place
+        </h1>
+        <div>
+          <h1 className="text-center text-sm font-bold">{date}</h1>
+        </div>
         <div className="addTodo my-5 flex flex-col gap-4">
           <h2 className="text-lg font-bold">Add List</h2>
           <input
@@ -79,55 +95,66 @@ const App = () => {
             className="w-full outline-none rounded-full px-5 py-1"
           />
           <button
-          disabled={todo.length<=3}
+            disabled={todo.length <= 3}
             onClick={handleAdd}
             className="bg-violet-800 hover:bg-violet-950 p-2 py-1 text-white rounded-md text-sm font-bold disabled:bg-violet-700"
           >
             Save
           </button>
         </div>
-        <input className="my-3" onChange={toggleFinished} type="checkbox" checked={showFinished} /> Show Finished
+        <input
+          className="my-3"
+          onChange={toggleFinished}
+          type="checkbox"
+          checked={showFinished}
+        />{" "}
+        Show Finished
         <h2 className="text-lg font-bold">Lists</h2>
         <div className="todos">
           {todos.length == 0 && <div className="m-2">No List To Display</div>}
           {todos.map((item) => {
-           return (showFinished || !item.isCompleted) &&
-            <div key={item.id} className="todo md:w-1/2 flex justify-between my-3">
-              <div className="flex gap-5">
-                {" "}
-                <input
-                  name={item.id}
-                  onChange={handleCheckbox}
-                  checked={item.isCompleted}
-                  type="checkbox"
-                  id=""
-                />
-                <div className={item.isCompleted ? "line-through" : ""}>
-                  {item.todo}
-                </div>
-              </div>
+            return (
+              (showFinished || !item.isCompleted) && (
+                <div
+                  key={item.id}
+                  className="todo md:w-1/2 flex justify-between my-3"
+                >
+                  <div className="flex gap-5">
+                    {" "}
+                    <input
+                      name={item.id}
+                      onChange={handleCheckbox}
+                      checked={item.isCompleted}
+                      type="checkbox"
+                      id=""
+                    />
+                    <div className={item.isCompleted ? "line-through" : ""}>
+                      {item.todo}
+                    </div>
+                  </div>
 
-              <div className="buttons flex h-full ">
-                <button
-                  onClick={(e) => {
-                    handleEdit(e, item.id);
-                  }}
-                  className="bg-violet-800 hover:bg-violet-950 p-2 py-1 text-white rounded-md mx-1 text-sm font-bold"
-                >
-                  <FaEdit/>
-                </button>
-                <button
-                  onClick={(e) => {
-                    handleDelete(e, item.id);
-                  }}
-                  className="bg-violet-800 hover:bg-violet-950 p-2 py-1 text-white rounded-md mx-1 text-sm font-bold"
-                >
-                  <AiFillDelete/>
-                </button>
-              </div>
-              
-            </div>
-})}
+                  <div className="buttons flex h-full ">
+                    <button
+                      onClick={(e) => {
+                        handleEdit(e, item.id);
+                      }}
+                      className="bg-violet-800 hover:bg-violet-950 p-2 py-1 text-white rounded-md mx-1 text-sm font-bold"
+                    >
+                      <FaEdit />
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        handleDelete(e, item.id);
+                      }}
+                      className="bg-violet-800 hover:bg-violet-950 p-2 py-1 text-white rounded-md mx-1 text-sm font-bold"
+                    >
+                      <AiFillDelete />
+                    </button>
+                  </div>
+                </div>
+              )
+            );
+          })}
         </div>
       </div>
     </div>
